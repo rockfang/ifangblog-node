@@ -14,10 +14,6 @@ app.use(cors());
 
 const bodyParser = require('koa-bodyparser');
 app.use(bodyParser());
-//工具类
-const Tool = require('./module/OperationTools.js');
-//Db
-const Db = require('./module/Db.js');
 //session
 const session = require('koa-session');
 const CONFIG = {
@@ -32,46 +28,35 @@ const CONFIG = {
 };
 app.keys = ['newest secret key', 'older secret key'];
 app.use(session(CONFIG, app));
-//配置中间件;
-router.use(async (ctx,next) => {
-    /**
-     * 区分前端页面请求的接口还是，cms后台请求的
-     */
-    let pathname = url.parse(ctx.request.url).pathname;//获取/admin/login/getCode?ts=770.0280020629946中/admin/login/getCode
-    console.log(pathname);
-    console.log(ctx.session.userinfo);
 
-    // if(ctx.session.userinfo) {
-    //     await next();
-    // } else {
-    //     if (pathname.indexOf('manager' > -1)) {
-    //         ctx.body={'code':100,'msg': "请先登录"};
-    //     } else {
-    //         await next();
-    //     }
-    // }
-
-});
 router.get('/', async (ctx, next) => {
     // ctx.router available
     ctx.body="hello"
 });
 
-router.post('api/doLogin', async (ctx, next) => {
-    let username = ctx.request.body.username;
-    let password = ctx.request.body.pass;
-    let result = await Db.find('admin',{username: username,password:Tool.md5(password),state:"1"});
-    if (result.length != 0) {
-        //登录成功设置session
-        ctx.session.userinfo = result[0];
-        //更新时间
-        await Db.update('admin',{_id: Db.getObjectId(result[0]._id)},{last_time: new Date()});
-        ctx.body= {'success':true};
-    } else {
-        // 登录失败 提示
-        ctx.body= {'success':false};
-    }
+
+/**
+ * 接口路由划分：api.js入口
+ * index.js博客前端页面接口入口
+ *      可细分前端接口
+ * admin.js博客cms管理平台接口入口
+ *      login.js登录相关接口
+ *      board.js控制台相关接口
+ *      manager.js管理员相关接口
+ *      ...
+ */
+
+//引入子路由
+const admin = require('./admin');
+const index = require('./index');
+
+app.use(async (ctx,next) => {
+    await next();
 });
+
+//配置子路由即访问/admin，对应admin.js
+router.use('/admin',admin);
+router.use(index);
 
 app
     .use(router.routes())

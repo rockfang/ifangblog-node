@@ -27,7 +27,7 @@ app.use(bodyParser());
 const session = require('koa-session');
 const CONFIG = {
     key: 'koa:sess',
-    maxAge: 30000,
+    maxAge: 2*3600*1000,
     autoCommit: true,
     overwrite: true,
     httpOnly: true, /** (boolean) httpOnly or not (default true) */

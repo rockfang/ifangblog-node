@@ -10,7 +10,16 @@ app.use(jsonp());
 
 //koa2-cors 允许跨域post访问
 const cors = require('koa2-cors');
-app.use(cors());
+app.use(cors({
+    origin: function (ctx) {
+        return 'http://localhost:8080';
+    },
+    exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
+    maxAge: 5,
+    credentials: true,//表示是否允许发送Cookie
+    allowMethods: ['GET', 'POST', 'DELETE'], //设置允许的HTTP请求类型
+    allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
+}));
 
 const bodyParser = require('koa-bodyparser');
 app.use(bodyParser());

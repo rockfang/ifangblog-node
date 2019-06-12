@@ -1,8 +1,12 @@
 const router = require('koa-router')();
+//工具类
+const Tool = require('./module/OperationTools.js');
+//Db
+const Db = require('./module/Db.js');
 //引入子路由
 const login = require('./admin/login');
 // const board = require('./admin/board');
-// const manager = require('./admin/manager');
+const manager = require('./admin/manager');
 // const articlecate = require('./admin/articlecate');
 // const article = require('./admin/article');
 // const link = require('./admin/link');
@@ -18,30 +22,68 @@ router.use(async (ctx,next) => {
     /**
      * 区分前端页面请求的接口还是，cms后台请求的
      */
-    let pathname = url.parse(ctx.request.url).pathname;//获取/admin/login/getCode?ts=770.0280020629946中/admin/login/getCode
-    console.log('admin中间件');
-    console.log(pathname);
-    console.log('----------');
-    console.log(ctx.session.userinfo);
-    if(ctx.session.userinfo) {
-        await next();
-    } else {
-        if (pathname == '/admin/login/doLogin' || pathname == '/admin/login/loginOut') {
-            await next();
-        } else {
-            ctx.body={'code':100,'msg': "请先登录"};
-        }
-    }
+    // let pathname = url.parse(ctx.request.url).pathname;//获取/admin/login/getCode?ts=770.0280020629946中/admin/login/getCode
+    // console.log('admin中间件');
+    // console.log(pathname);
+    // console.log('----------');
+    // console.log(ctx.session.userinfo);
+    // if(ctx.session.userinfo) {
+    //     await next();
+    // } else {
+    //     if (pathname == '/admin/login/doLogin' || pathname == '/admin/login/loginOut') {
+    //         await next();
+    //     } else {
+    //         ctx.body={'code':1002,'msg': "请先登录"};
+    //     }
+    // }
+
+    await next();
+
 });
 
 
 router.use('/login',login);
 // router.use('/board',board);
-// router.use('/manager',manager);
+router.use('/manager',manager);
 // router.use('/articlecate',articlecate);
 // router.use('/article',article);
 // router.use('/link',link);
 // router.use('/nav',nav);
 // router.use('/setting',setting);
+
+
+router.post('/changeState',async (ctx) => {
+    let collectionName = ctx.request.body.collectionName;
+    let attr = ctx.request.body.attr;//要改变的参数,对应数据库表中一个字段
+    let id = ctx.request.body.id;
+
+    if (!collectionName || !attr || !id) {
+        ctx.body = {success: false,message: "参数异常"};
+        return;
+    }
+    let result = await Db.find(collectionName,{"_id": Db.getObjectId(id)});
+    if (result.length != 0) {
+        let serverAttr = result[0][attr];
+        let destAttr = {};
+        if (serverAttr == 0) {
+            destAttr = { /*es6 属性名表达式*/
+                [attr]: "1"
+            };
+        } else {
+            destAttr = { /*es6 属性名表达式*/
+                [attr]: "0"
+            };
+        }
+        let updateResult = await Db.update(collectionName,{_id: Db.getObjectId(id)},destAttr);
+        if(updateResult) {
+            ctx.body = {success: true,msg: "更新成功"};
+        } else {
+            ctx.body = {success: false,msg: "更新失败"};
+        }
+
+    } else {
+        ctx.body = {success: false,msg: "参数错误"};
+    }
+});
 
 module.exports = router.routes();

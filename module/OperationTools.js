@@ -1,5 +1,7 @@
 const md5 = require('md5');
 const multer = require('koa-multer');
+const sd = require('silly-datetime');
+
 const Tool = {
     multerUpload: function() {
         let storage = multer.diskStorage({
@@ -16,6 +18,9 @@ const Tool = {
     },
     md5: function (src) {
        return md5(src);
+    },
+    getCurrentTime: function () {
+        return sd.format(new Date(), 'YYYY-MM-DD HH:mm');
     },
     processArticleData: function (srcArr) {
         let resultArr = [];
@@ -38,9 +43,6 @@ const Tool = {
         }
         return resultArr;
     },
-    getCurrentTime: function () {
-      return new Date();
-    }
 };
 
 module.exports = Tool;

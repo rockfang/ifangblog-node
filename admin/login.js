@@ -22,7 +22,7 @@ router.post('/doLogin',async (ctx,next) => {
         //登录成功设置session
         ctx.session.userinfo = result[0];
         //更新时间
-        await Db.update('admin',{_id: Db.getObjectId(result[0]._id)},{last_time: new Date()});
+        await Db.update('admin',{_id: Db.getObjectId(result[0]._id)},{last_time: Tool.getCurrentTime()});
         ctx.body= {'success':true,'msg':'登录成功','username': username};
     } else {
         // 登录失败 提示

@@ -7,7 +7,7 @@ const Db = require('./module/Db.js');
 const login = require('./admin/login');
 // const board = require('./admin/board');
 const manager = require('./admin/manager');
-// const articlecate = require('./admin/articlecate');
+const articletype = require('./admin/articletype');
 // const article = require('./admin/article');
 // const link = require('./admin/link');
 // const nav = require('./admin/nav');
@@ -41,7 +41,7 @@ router.use(async (ctx,next) => {
 router.use('/login',login);
 // router.use('/board',board);
 router.use('/manager',manager);
-// router.use('/articlecate',articlecate);
+router.use('/articletype',articletype);
 // router.use('/article',article);
 // router.use('/link',link);
 // router.use('/nav',nav);

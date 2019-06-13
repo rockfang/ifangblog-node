@@ -14,6 +14,17 @@ router.get('/',async (ctx,next) => {
     ctx.body = {success:true,articletypes:articletypes};
 });
 
+//获取所有父类型(一级目录)
+router.get('/getPtypes',async (ctx,next) => {
+    let result = await Db.find('articletype',{pid: '0'});
+    let articletypes = [];
+    if (result.length != 0) {
+        articletypes = result;
+    }
+
+    ctx.body = {success:true,ptypes:articletypes};
+});
+
 router.get('/delete',async (ctx,next) => {
     let id = ctx.query.id;
     console.log(id);
@@ -21,8 +32,11 @@ router.get('/delete',async (ctx,next) => {
         ctx.body= {'success':false,'msg':'参数异常'};
         return;
     }
-    let delResult = await Db.delete('admin',{_id: Db.getObjectId(id)});
+    let delResult = await Db.delete('articletype',{_id: Db.getObjectId(id)});
     if(delResult.result.ok) {
+        let delSonResult = await Db.delete('articletype',{pid: id});
+        //子目录未删除也不影响显示 因此不做二级目录删除成功判断
+
         ctx.body= {'success':true,'msg':'管理员删除成功'};
     } else {
         ctx.body= {'success':false,'msg':'管理员删除失败'};
@@ -31,30 +45,27 @@ router.get('/delete',async (ctx,next) => {
 });
 
 router.post('/doAdd',async (ctx,next) => {
-    let username = ctx.request.body.username;
-    let password = ctx.request.body.password;
-    let repwd = ctx.request.body.repwd;
+    let title = ctx.request.body.title;
+    let pid = ctx.request.body.pid;
     let state = ctx.request.body.state;
-    if(!username || !password || !repwd) {
+    let description = ctx.request.body.description;
+    let lock = ctx.request.body.lock;
+
+    if(!title) {
         ctx.body= {'success':false,'msg':'用户信息异常'};
         return;
     }
 
-    if (password !== repwd) {
-        ctx.body= {'success':false,'msg':'两次输入密码不一致'};
+    let findResult = await Db.find('articletype',{title: title});
+    if (findResult.length != 0) {
+        ctx.body= {'success':false,'msg':'该分类名已存在'};
         return;
     }
-
-    let result = await Db.find('admin',{username: username});
-    if (result.length != 0) {
-        ctx.body= {'success':false,'msg':'用户名已存在'};
-        return;
-    }
-    let addResult = await Db.add('admin',{username:username,password:Tool.md5(password),state:state,last_time:''})
+    let addResult = await Db.add('articletype',{title,pid,state,description,lock,add_time:Tool.getCurrentTime()});
     if(addResult) {
-        ctx.body= {'success':true,'msg':'管理员添加成功'};
+        ctx.body= {'success':true,'msg':'添加成功'};
     } else {
-        ctx.body= {'success':false,'msg':'管理员添加失败'};
+        ctx.body= {'success':false,'msg':'添加失败'};
     }
 });
 

@@ -10,7 +10,7 @@ router.get('/',async (ctx,next) => {
         for(let i = 0, length = result.length; i < length; i++) {
             managers.push({
                  username:result[i].username,
-                 id:result[i]._id,
+                 _id:result[i]._id,
                  state:result[i].state,
                  last_time:result[i].last_time
                 });

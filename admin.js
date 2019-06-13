@@ -23,8 +23,8 @@ router.use(async (ctx,next) => {
      * 区分前端页面请求的接口还是，cms后台请求的
      */
     let pathname = url.parse(ctx.request.url).pathname;//获取/admin/login/getCode?ts=770.0280020629946中/admin/login/getCode
-    console.log('admin中间件');
-    console.log(ctx.session.userinfo);
+    // console.log('admin中间件');
+    // console.log(ctx.session.userinfo);
     if(ctx.session.userinfo) {
         await next();
     } else {
@@ -49,6 +49,7 @@ router.use('/articletype',articletype);
 
 
 router.post('/changeState',async (ctx) => {
+    console.log(ctx.request.body);
     let collectionName = ctx.request.body.collectionName;
     let attr = ctx.request.body.attr;//要改变的参数,对应数据库表中一个字段
     let id = ctx.request.body.id;
@@ -70,6 +71,7 @@ router.post('/changeState',async (ctx) => {
                 [attr]: "0"
             };
         }
+        console.log(destAttr);
         let updateResult = await Db.update(collectionName,{_id: Db.getObjectId(id)},destAttr);
         if(updateResult) {
             ctx.body = {success: true,msg: "更新成功"};

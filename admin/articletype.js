@@ -25,6 +25,19 @@ router.get('/getPtypes',async (ctx,next) => {
     ctx.body = {success:true,ptypes:articletypes};
 });
 
+//获取当前id的分类信息
+router.get('/getctype',async (ctx,next) => {
+    console.log(ctx.query);
+    let id = ctx.query.id;
+    let result = await Db.find('articletype',{_id: Db.getObjectId(id)});
+    if (result.length != 0) {
+        ctx.body = {success:true,ctype:result[0]};
+    } else {
+        ctx.body = {success:false,msg:'未获取操作类型信息'};
+    }
+
+});
+
 router.get('/delete',async (ctx,next) => {
     let id = ctx.query.id;
     console.log(id);
@@ -72,29 +85,21 @@ router.post('/doAdd',async (ctx,next) => {
 router.post('/doEdit',async (ctx,next) => {
     console.log(ctx.request.body);
     let id = ctx.request.body.id;
-    let username = ctx.request.body.username;
-    let password = ctx.request.body.password;
-    let repwd = ctx.request.body.repwd;
-    if(!id || !password || !repwd) {
-        ctx.body= {'success':false,'msg':'用户信息异常'};
-        return;
-    }
+    let pid = ctx.request.body.pid;
+    let state = ctx.request.body.state;
+    let description = ctx.request.body.description;
+    let lock = ctx.request.body.lock;
 
-    if (password !== repwd) {
-        ctx.body= {'success':false,'msg':'两次输入密码不一致'};
-        return;
-    }
-
-    let result = await Db.find('admin',{_id: Db.getObjectId(id)});
+    let result = await Db.find('articletype',{_id: Db.getObjectId(id)});
     if (result.length == 0) {
-        ctx.body= {'success':false,'msg':'用户不存在'};
+        ctx.body= {'success':false,'msg':'该分类不存在'};
         return;
     }
-    let updateResult = await Db.update('admin',{_id: Db.getObjectId(id)},{password:Tool.md5(password)});
+    let updateResult = await Db.update('articletype',{_id: Db.getObjectId(id)},{pid,state,description,lock});
     if(updateResult) {
-        ctx.body= {'success':true,'msg':'密码修改成功'};
+        ctx.body= {'success':true,'msg':'修改成功'};
     } else {
-        ctx.body= {'success':false,'msg':'密码失败'};
+        ctx.body= {'success':false,'msg':'修改失败'};
     }
 });
 

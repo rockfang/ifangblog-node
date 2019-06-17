@@ -8,6 +8,7 @@ const login = require('./admin/login');
 // const board = require('./admin/board');
 const manager = require('./admin/manager');
 const articletype = require('./admin/articletype');
+const tag = require('./admin/tag');
 // const article = require('./admin/article');
 // const link = require('./admin/link');
 // const nav = require('./admin/nav');
@@ -22,18 +23,20 @@ router.use(async (ctx,next) => {
     /**
      * 区分前端页面请求的接口还是，cms后台请求的
      */
-    let pathname = url.parse(ctx.request.url).pathname;//获取/admin/login/getCode?ts=770.0280020629946中/admin/login/getCode
-    // console.log('admin中间件');
-    // console.log(ctx.session.userinfo);
-    if(ctx.session.userinfo) {
-        await next();
-    } else {
-        if (pathname == '/admin/login/doLogin' || pathname == '/admin/login/loginOut') {
-            await next();
-        } else {
-            ctx.body={'code':1002,'msg': "请先登录"};
-        }
-    }
+    await next();
+
+    // let pathname = url.parse(ctx.request.url).pathname;//获取/admin/login/getCode?ts=770.0280020629946中/admin/login/getCode
+    // // console.log('admin中间件');
+    // // console.log(ctx.session.userinfo);
+    // if(ctx.session.userinfo) {
+    //     await next();
+    // } else {
+    //     if (pathname == '/admin/login/doLogin' || pathname == '/admin/login/loginOut') {
+    //         await next();
+    //     } else {
+    //         ctx.body={'code':1002,'msg': "请先登录"};
+    //     }
+    // }
 
 });
 
@@ -42,6 +45,7 @@ router.use('/login',login);
 // router.use('/board',board);
 router.use('/manager',manager);
 router.use('/articletype',articletype);
+router.use('/tag',tag);
 // router.use('/article',article);
 // router.use('/link',link);
 // router.use('/nav',nav);

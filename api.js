@@ -13,6 +13,7 @@ const cors = require('koa2-cors');
 app.use(cors({
     origin: function (ctx) {
         return 'http://localhost:8080';
+
     },
     exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
     maxAge: 5,
@@ -23,6 +24,9 @@ app.use(cors({
 
 const bodyParser = require('koa-bodyparser');
 app.use(bodyParser());
+
+const serve = require('koa-static');
+app.use(serve(__dirname + '/public'));
 //session
 const session = require('koa-session');
 const CONFIG = {

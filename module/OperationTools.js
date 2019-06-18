@@ -3,10 +3,15 @@ const multer = require('koa-multer');
 const sd = require('silly-datetime');
 
 const Tool = {
-    multerUpload: function() {
+    multerUpload: function(pathname) {
         let storage = multer.diskStorage({
             destination: function (req, file, cb) {
-                cb(null, 'public/upload')
+                if (pathname) {
+                    cb(null, 'public' + pathname)
+                } else {
+                    cb(null, 'public')
+                }
+
             },
             filename: function (req, file, cb) {
                 let fileFormat = (file.originalname).split(".");   /*获取后缀名  分割数组*/

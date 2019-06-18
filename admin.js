@@ -23,20 +23,20 @@ router.use(async (ctx,next) => {
     /**
      * 区分前端页面请求的接口还是，cms后台请求的
      */
-    await next();
+    // await next();
 
-    // let pathname = url.parse(ctx.request.url).pathname;//获取/admin/login/getCode?ts=770.0280020629946中/admin/login/getCode
-    // // console.log('admin中间件');
-    // // console.log(ctx.session.userinfo);
-    // if(ctx.session.userinfo) {
-    //     await next();
-    // } else {
-    //     if (pathname == '/admin/login/doLogin' || pathname == '/admin/login/loginOut') {
-    //         await next();
-    //     } else {
-    //         ctx.body={'code':1002,'msg': "请先登录"};
-    //     }
-    // }
+    let pathname = url.parse(ctx.request.url).pathname;//获取/admin/login/getCode?ts=770.0280020629946中/admin/login/getCode
+    // console.log('admin中间件');
+    // console.log(ctx.session.userinfo);
+    if(ctx.session.userinfo) {
+        await next();
+    } else {
+        if (pathname == '/admin/login/doLogin' || pathname == '/admin/login/loginOut') {
+            await next();
+        } else {
+            ctx.body={'code':1002,'msg': "请先登录"};
+        }
+    }
 
 });
 

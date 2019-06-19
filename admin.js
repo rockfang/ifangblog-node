@@ -11,7 +11,7 @@ const articletype = require('./admin/articletype');
 const tag = require('./admin/tag');
 // const article = require('./admin/article');
 const link = require('./admin/link');
-// const nav = require('./admin/nav');
+const nav = require('./admin/nav');
 // const setting = require('./admin/setting');
 const md5 = require('md5');
 const url = require('url');
@@ -48,7 +48,7 @@ router.use('/articletype',articletype);
 router.use('/tag',tag);
 // router.use('/article',article);
 router.use('/link',link);
-// router.use('/nav',nav);
+router.use('/nav',nav);
 // router.use('/setting',setting);
 
 
@@ -89,7 +89,6 @@ router.post('/changeState',async (ctx) => {
 });
 
 router.post('/changeSort',async (ctx) => {
-    console.log('----------changeSort---------');
     console.log(ctx.request.body);
     let collectionName = ctx.request.body.collectionName;
     let sort = ctx.request.body.sort;//要改变的参数,对应数据库表中一个字段

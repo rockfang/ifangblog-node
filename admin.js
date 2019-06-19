@@ -10,7 +10,7 @@ const manager = require('./admin/manager');
 const articletype = require('./admin/articletype');
 const tag = require('./admin/tag');
 // const article = require('./admin/article');
-// const link = require('./admin/link');
+const link = require('./admin/link');
 // const nav = require('./admin/nav');
 // const setting = require('./admin/setting');
 const md5 = require('md5');
@@ -47,7 +47,7 @@ router.use('/manager',manager);
 router.use('/articletype',articletype);
 router.use('/tag',tag);
 // router.use('/article',article);
-// router.use('/link',link);
+router.use('/link',link);
 // router.use('/nav',nav);
 // router.use('/setting',setting);
 
@@ -88,4 +88,18 @@ router.post('/changeState',async (ctx) => {
     }
 });
 
+router.post('/changeSort',async (ctx) => {
+    console.log('----------changeSort---------');
+    console.log(ctx.request.body);
+    let collectionName = ctx.request.body.collectionName;
+    let sort = ctx.request.body.sort;//要改变的参数,对应数据库表中一个字段
+    let id = ctx.request.body.id;
+
+    let updateResult = await Db.update(collectionName,{_id: Db.getObjectId(id)},{sort:sort});
+    if(updateResult) {
+        ctx.body = {success: true,message: "更新成功"};
+    } else {
+        ctx.body = {success: false,message: "更新失败"};
+    }
+});
 module.exports = router.routes();

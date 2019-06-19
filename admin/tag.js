@@ -4,13 +4,29 @@ const Tool = require('../module/OperationTools.js');
 //Db
 const Db = require('../module/Db.js');
 router.get('/',async (ctx,next) => {
+    console.log(ctx.query);
     //分页加载
-    let result = await Db.find('tag',{});
+    let currentPage = ctx.query.page || 1;
+    //每页多少条
+    let PAGE_SIZE = ctx.query.pageSize || 10;
+    //获取页数用于分页设置
+    let total = await Db.count('tag',{});
+
+    //获取当前页数据
+    let result = await Db.find('tag',{},{},
+        {   page:parseInt(currentPage),
+            pageSize:parseInt(PAGE_SIZE),
+            sort: {
+                'add_time': -1
+            }
+        }
+    );
+
     let tags = [];
     if (result.length != 0) {
         tags = result;
     }
-    ctx.body = {success:true,tags:tags};
+    ctx.body = {success:true,tags:tags,pageCount:Math.ceil(total/PAGE_SIZE)};
 
 });
 

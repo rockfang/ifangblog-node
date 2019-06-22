@@ -27,6 +27,9 @@ const Tool = {
     getCurrentTime: function () {
         return sd.format(new Date(), 'YYYY-MM-DD HH:mm');
     },
+    getTimeFormat: function(time) {
+        return sd.format(time, 'YYYY-MM-DD');
+    },
     processArticleData: function (srcArr) {
         let resultArr = [];
         let length = srcArr.length;

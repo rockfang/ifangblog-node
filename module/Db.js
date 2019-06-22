@@ -69,43 +69,91 @@ class Db {
 
     //查询第page页的数据，每页数据大小为pageSize. 页数： pagenumber = Math.ceil(count/pageSize)
     // db.article.find({},{title:1}).skip((page-1)*pageSize).limit(pageSize).sort({'add_time':-1})
-    find(collectionName,json,fieldJson,psJson) {
-        return new Promise((resolve,reject) => {
-            this.connect().then((client) => {
+    // find(collectionName,json,fieldJson,psJson) {
+    //     return new Promise((resolve,reject) => {
+    //         this.connect().then((client) => {
+    //
+    //             try {
+    //                 let col = client.collection(collectionName);
+    //                 let result = "";
+    //                 if(arguments.length == 2) {
+    //                     result= col.find(json);
+    //                 } else if(arguments.length == 3) {
+    //                     result= col.find(json,fieldJson);
+    //                 } else if(arguments.length == 4) {
+    //                     //健壮性处理
+    //                     let page=psJson.page ||1;
+    //                     let pageSize=psJson.pageSize||100;
+    //                     let skipnumber=(page-1)*pageSize;
+    //                     if(psJson.sort) {
+    //                         result= col.find(json,fieldJson).skip(skipnumber).limit(pageSize).sort(psJson.sort);
+    //                     } else {
+    //                         result= col.find(json,fieldJson).skip(skipnumber).limit(pageSize);
+    //                     }
+    //                 } else {
+    //                     reject('参数异常');
+    //                 }
+    //                 result.toArray(function(err,docs){
+    //
+    //                     if(err){
+    //                         reject(err);
+    //                         return;
+    //                     }
+    //                     resolve(docs);
+    //                 })
+    //             } catch (e) {
+    //                 reject(e);
+    //             }
+    //         });
+    //     });
+    // }
 
-                try {
-                    let col = client.collection(collectionName);
-                    let result = "";
-                    if(arguments.length == 2) {
-                        result= col.find(json);
-                    } else if(arguments.length == 3) {
-                        result= col.find(json,fieldJson);
-                    } else if(arguments.length == 4) {
-                        //健壮性处理
-                        let page=psJson.page ||1;
-                        let pageSize=psJson.pageSize||100;
-                        let skipnumber=(page-1)*pageSize;
-                        if(psJson.sort) {
-                            result= col.find(json,fieldJson).skip(skipnumber).limit(pageSize).sort(psJson.sort);
-                        } else {
-                            result= col.find(json,fieldJson).skip(skipnumber).limit(pageSize);
-                        }
-                    } else {
-                        reject('参数异常');
+    /*
+
+   Db.find('user',{})  返回所有数据
+   Db.find('user',{},{"title":1})    返回所有数据  只返回一列
+   Db.find('user',{},{"title":1},{   返回第二页的数据
+      page:2,
+      pageSize:20,
+      sort:{"add_time":-1}
+   })
+  * */
+    find(collectionName,json,fieldJson,psJson){
+        let attr={};
+        let skipnumber=0;
+        let pageSize=0;
+        let page = 1;
+        let sortJson = {};
+
+        if(arguments.length==2) {
+            //do nothing
+        } else if(arguments.length==3){
+            attr=fieldJson;
+        }else if(arguments.length==4){
+            attr = fieldJson;
+            page = psJson.page || 1;
+            pageSize = psJson.pageSize || 20;
+            skipnumber = (page - 1) * pageSize;
+            if (psJson.sort) {
+                sortJson = psJson.sort;
+            }
+        }else{
+            console.error('传入参数错误')
+        }
+        return new Promise((resolve,reject)=>{
+            this.connect().then((db)=>{
+                //var result=db.collection(collectionName).find(json);
+                let result =db.collection(collectionName).find(json,{fields: attr}).skip(skipnumber).limit(pageSize).sort(sortJson);
+                result.toArray(function(err,docs){
+                    if(err){
+                        reject(err);
+                        return;
                     }
-                    result.toArray(function(err,docs){
+                    resolve(docs);
+                })
 
-                        if(err){
-                            reject(err);
-                            return;
-                        }
-                        resolve(docs);
-                    })
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        });
+            })
+        })
     }
 
 

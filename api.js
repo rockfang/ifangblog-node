@@ -12,6 +12,7 @@ app.use(jsonp());
 const cors = require('koa2-cors');
 app.use(cors({
     origin: function (ctx) {
+        // return 'http://106.15.233.83:8888';
         return 'http://localhost:8080';
 
     },
@@ -69,7 +70,7 @@ app.use(async (ctx,next) => {
 
 //配置子路由即访问/admin，对应admin.js
 router.use('/admin',admin);
-router.use(index);
+router.use('/index',index);
 
 app
     .use(router.routes())

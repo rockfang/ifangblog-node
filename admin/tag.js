@@ -44,7 +44,18 @@ router.get('/getctag',async (ctx,next) => {
 });
 
 router.get('/delete',async (ctx,next) => {
-
+    let id = ctx.query.id;
+    console.log("delete:" + id);
+    if (!id) {
+        ctx.body= {'success':false,'msg':'参数异常'};
+        return;
+    }
+    let delResult = await Db.delete('tag',{_id: Db.getObjectId(id)});
+    if(delResult.result.ok) {
+        ctx.body= {'success':true,'msg':'删除成功'};
+    } else {
+        ctx.body= {'success':false,'msg':'删除失败'};
+    }
 });
 
 router.post('/doAdd',Tool.multerUpload("/tagIcon").single('tagIcon'),async (ctx)=>{

@@ -34,6 +34,14 @@ router.get('/getarticle',async (ctx,next) => {
     let id = ctx.query.id;
     let result = await Db.find('article',{_id: Db.getObjectId(id)});
     if (result.length != 0) {
+        //处理tags
+        let showTags = [];
+        let sourceData = result[0];
+        for(let i = 0, length = sourceData.tags.length; i < length; i++) {
+            showTags.push(sourceData.tags[i].name)
+        }
+        result[0].tags = showTags;
+
         ctx.body = {success:true,article:result[0]};
     } else {
         ctx.body = {success:false,msg:'未获取操作类型信息'};
@@ -99,8 +107,19 @@ router.post('/doAdd',async (ctx,next) => {
     let lock = '0';
     let createId = latestCreateResult.length === 0 ? 1 : latestCreateResult[0].createId + 1;
 
+    //把tags和标签页的标签绑定  warning
+    let newTags = [];
+    for(let i = 0, length = tags.length; i < length; i++) {
+        let findTagResult = await Db.find('tag',{name: tags[i]});
+            if (findTagResult.length > 0) {
+                newTags.push({name:findTagResult[0].name,icon:findTagResult[0].icon});
+            } else {
+                newTags.push({name:tags[i],icon: ''});
+            }
+    }
+
     let addResult = await Db.add('article',{pid,atname,title,state,description,keywords,rawText,renderText,
-        lock,tags,createId,updateTime:'',createTime:Tool.getTimeFormat(createTime)});
+        lock,tags:newTags,createId,updateTime:'',createTime:Tool.getTimeFormat(createTime)});
     if(addResult) {
         ctx.body= {'success':true,'msg':'添加成功'};
     } else {
@@ -133,9 +152,19 @@ router.post('/doEdit',async (ctx,next) => {
     }
     let atname = findArticletypeResult[0].title;
 
+    //把tags和标签页的标签绑定  warning
+    let newTags = [];
+    for(let i = 0, length = tags.length; i < length; i++) {
+        let findTagResult = await Db.find('tag',{name: tags[i]});
+        if (findTagResult.length > 0) {
+            newTags.push({name:findTagResult[0].name,icon:findTagResult[0].icon});
+        } else {
+            newTags.push({name:tags[i],icon: ''});
+        }
+    }
 
     let updateResult = await Db.update('article',{_id: Db.getObjectId(id)},{pid,atname,title,state,description,keywords,rawText,renderText,
-        tags,updateTime:Tool.getCurrentTime()});
+        tags:newTags,updateTime:Tool.getCurrentTime()});
     if(updateResult) {
         ctx.body= {'success':true,'msg':'修改成功'};
     } else {

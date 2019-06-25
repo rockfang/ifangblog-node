@@ -172,4 +172,67 @@ router.post('/doEdit',async (ctx,next) => {
     }
 });
 
+
+router.post('/postImg',Tool.multerUpload("/articleImages").single('articleImages'),async (ctx,next) => {
+    let pid = ctx.request.body.pid;
+    let title = ctx.request.body.title;
+    let state = ctx.request.body.state; //草稿还是发布
+    let description = ctx.request.body.description;
+    let keywords = ctx.request.body.keywords;
+    let rawText = ctx.request.body.rawText;
+    let renderText = ctx.request.body.renderText;
+    let createTime = ctx.request.body.createTime;
+    let tags = ctx.request.body.tags;
+
+    console.log(ctx.request.body);
+
+    if(!title || !description || !renderText) {
+        ctx.body= {'success':false,'msg':'提交信息异常'};
+        return;
+    }
+
+    let findTitleResult = await Db.find('article',{title: title});
+    if (findTitleResult.length != 0) {
+        ctx.body= {'success':false,'msg':'该文章名已存在'};
+        return;
+    }
+
+    let findArticletypeResult = await Db.find('articletype',{_id: Db.getObjectId(pid)});
+    if (findArticletypeResult.length == 0) {
+        ctx.body= {'success':false,'msg':'文章所属类目不存在'};
+        return;
+    }
+
+    let latestCreateResult = await Db.find('article',{},{createId:1},{
+        sort: {
+            createId: -1
+        }
+    });
+
+    console.log(latestCreateResult);
+    // 默认信息
+    let atname = findArticletypeResult[0].title;
+    let lock = '0';
+    let createId = latestCreateResult.length === 0 ? 1 : latestCreateResult[0].createId + 1;
+
+    //把tags和标签页的标签绑定  warning
+    let newTags = [];
+    for(let i = 0, length = tags.length; i < length; i++) {
+        let findTagResult = await Db.find('tag',{name: tags[i]});
+        if (findTagResult.length > 0) {
+            newTags.push({name:findTagResult[0].name,icon:findTagResult[0].icon});
+        } else {
+            newTags.push({name:tags[i],icon: ''});
+        }
+    }
+
+    let addResult = await Db.add('article',{pid,atname,title,state,description,keywords,rawText,renderText,
+        lock,tags:newTags,createId,updateTime:'',createTime:Tool.getTimeFormat(createTime)});
+    if(addResult) {
+        ctx.body= {'success':true,'msg':'添加成功'};
+    } else {
+        ctx.body= {'success':false,'msg':'添加失败'};
+    }
+});
+
 module.exports = router.routes();

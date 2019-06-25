@@ -26,7 +26,7 @@ router.post('/doLogin',async (ctx,next) => {
         ctx.body= {'success':true,'msg':'登录成功','username': username};
     } else {
         // 登录失败 提示
-        ctx.body= {'success':false};
+        ctx.body= {'success':false,msg:'登陆失败,用户名或密码错误'};
     }
 });
 

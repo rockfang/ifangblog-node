@@ -67,49 +67,7 @@ class Db {
 
     }
 
-    //查询第page页的数据，每页数据大小为pageSize. 页数： pagenumber = Math.ceil(count/pageSize)
-    // db.article.find({},{title:1}).skip((page-1)*pageSize).limit(pageSize).sort({'add_time':-1})
-    // find(collectionName,json,fieldJson,psJson) {
-    //     return new Promise((resolve,reject) => {
-    //         this.connect().then((client) => {
-    //
-    //             try {
-    //                 let col = client.collection(collectionName);
-    //                 let result = "";
-    //                 if(arguments.length == 2) {
-    //                     result= col.find(json);
-    //                 } else if(arguments.length == 3) {
-    //                     result= col.find(json,fieldJson);
-    //                 } else if(arguments.length == 4) {
-    //                     //健壮性处理
-    //                     let page=psJson.page ||1;
-    //                     let pageSize=psJson.pageSize||100;
-    //                     let skipnumber=(page-1)*pageSize;
-    //                     if(psJson.sort) {
-    //                         result= col.find(json,fieldJson).skip(skipnumber).limit(pageSize).sort(psJson.sort);
-    //                     } else {
-    //                         result= col.find(json,fieldJson).skip(skipnumber).limit(pageSize);
-    //                     }
-    //                 } else {
-    //                     reject('参数异常');
-    //                 }
-    //                 result.toArray(function(err,docs){
-    //
-    //                     if(err){
-    //                         reject(err);
-    //                         return;
-    //                     }
-    //                     resolve(docs);
-    //                 })
-    //             } catch (e) {
-    //                 reject(e);
-    //             }
-    //         });
-    //     });
-    // }
-
     /*
-
    Db.find('user',{})  返回所有数据
    Db.find('user',{},{"title":1})    返回所有数据  只返回一列
    Db.find('user',{},{"title":1},{   返回第二页的数据
@@ -156,6 +114,41 @@ class Db {
         })
     }
 
+
+    /**
+     *
+     * @param collectionName
+     * @param json ：[{"$unwind":"$tags"},{"$match":{"tags.name":tagName}},{$sort:{createId:-1}}] 包含排序及匹配信息
+     * @param psJson： 分页信息
+     * @returns {Promise<any>}
+     */
+    findArticle(collectionName,json,psJson){
+        let skipnumber=0;
+        let pageSize=0;
+        let page = 1;
+
+        if(arguments.length==3){
+            page = psJson.page || 1;
+            pageSize = psJson.pageSize || 20;
+            skipnumber = (page - 1) * pageSize;
+        }else{
+            console.error('传入参数错误')
+        }
+        return new Promise((resolve,reject)=>{
+            this.connect().then((db)=>{
+                //var result=db.collection(collectionName).find(json);
+                let result =db.collection(collectionName).aggregate(json).skip(skipnumber).limit(pageSize);
+                result.toArray(function(err,docs){
+                    if(err){
+                        reject(err);
+                        return;
+                    }
+                    resolve(docs);
+                })
+
+            })
+        })
+    }
 
     update(collectionName,srcJson,updatedJson) {
         return new Promise((resolve,reject) => {

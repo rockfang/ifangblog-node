@@ -30,6 +30,9 @@ const Tool = {
     getTimeFormat: function(time) {
         return sd.format(time, 'YYYY-MM-DD');
     },
+    getCurrentDayTime: function () {
+        return sd.format(new Date(), 'YYYY-MM-DD');
+    },
     processArticleData: function (srcArr) {
         let resultArr = [];
         let length = srcArr.length;

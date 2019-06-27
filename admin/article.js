@@ -164,7 +164,7 @@ router.post('/doEdit',async (ctx,next) => {
     }
 
     let updateResult = await Db.update('article',{_id: Db.getObjectId(id)},{pid,atname,title,state,description,keywords,rawText,renderText,
-        tags:newTags,updateTime:Tool.getCurrentTime()});
+        tags:newTags,updateTime:Tool.getCurrentDayTime()});
     if(updateResult) {
         ctx.body= {'success':true,'msg':'修改成功'};
     } else {

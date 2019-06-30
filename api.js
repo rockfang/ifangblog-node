@@ -12,7 +12,7 @@ app.use(jsonp());
 const cors = require('koa2-cors');
 app.use(cors({
     origin: function (ctx) {
-        // return 'http://www.icaifun.com';
+        // return 'https://www.icaifun.com';
         return 'http://localhost:8080';
 
     },

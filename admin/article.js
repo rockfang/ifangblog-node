@@ -180,7 +180,7 @@ router.post('/postImg',Tool.multerUpload("/articleImages").single('image'),async
     }
     let tempUrl = ctx.request.header.host + ctx.req.file.path.substr(6);// \articleImages\1562164564784.gif
     console.log(ctx.request.header.host);
-    if(ctx.request.header.host.indexOf('localhost' > -1)) {
+    if(ctx.request.header.host.indexOf('localhost') > -1) {
         var remoteUrl = "http://" + tempUrl.replace(/\\/g,'/'); // 方便测试用
     } else {
         var remoteUrl = "https://" + tempUrl.replace(/\\/g,'/'); // https://api.icaifun.com/articleImages/1561867054288.png

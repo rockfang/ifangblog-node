@@ -98,10 +98,14 @@ class Db {
         }else{
             console.error('传入参数错误')
         }
+        // collation实现按数值排序，解决sort字段是string类型引起排序异常问题
+        // db.stock.find({}).collation({"locale": "zh", numericOrdering:true}).sort({stock_code:1})
         return new Promise((resolve,reject)=>{
             this.connect().then((db)=>{
                 //var result=db.collection(collectionName).find(json);
-                let result =db.collection(collectionName).find(json,{fields: attr}).skip(skipnumber).limit(pageSize).sort(sortJson);
+                let result =db.collection(collectionName).find(json,{fields: attr}).skip(skipnumber).limit(pageSize)
+                    .collation({"locale": "zh", numericOrdering:true})
+                    .sort(sortJson);
                 result.toArray(function(err,docs){
                     if(err){
                         reject(err);

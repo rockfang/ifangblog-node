@@ -46,12 +46,14 @@ router.get('/articleDetail',async (ctx,next) => {
 });
 
 router.get('/tags',async (ctx,next) => {
-    let result = await Db.find('tag',{state: '1'},{name: 1});
+    let result = await Db.find('tag',{state: '1'},{name: 1,sort:1},{
+        sort:{"sort":1}
+    });
     let tags = [];
     if (result.length != 0) {
         tags = result;
     }
-
+    console.log("tags:" + result);
     ctx.body = {success:true,tags:tags};
 });
 router.get('/taginfo',async (ctx,next) => {
@@ -66,6 +68,7 @@ router.get('/taginfo',async (ctx,next) => {
     if (result.length != 0) {
         taginfo = result[0];
     }
+    console.log("taginfo:" + taginfo);
 
     ctx.body = {success:true,taginfo:taginfo};
 });
